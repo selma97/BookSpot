@@ -95,6 +95,7 @@ namespace BookSpot.Repositories
                 else if (cartDetail.Quantity == 1)
                 {
                     _context.CartDetails.Remove(cartDetail);
+                    _context.SaveChanges();
                 }
                 else
                 {
@@ -154,7 +155,5 @@ namespace BookSpot.Repositories
             return shoppingCart;
 
         }
-
-
     }
 }
