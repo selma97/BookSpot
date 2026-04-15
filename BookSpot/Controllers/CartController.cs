@@ -39,5 +39,12 @@ namespace BookSpot.Controllers
             int cartItemsCount = await _cartRepository.GetCartItemCount();
             return Ok(cartItemsCount);
         }
+        public async Task<IActionResult> DoCheckout()
+        {
+            bool isCheckedOut = await _cartRepository.DoCheckout();
+            if(!isCheckedOut)
+                throw new InvalidOperationException("Checkout failed on server side");
+            return RedirectToAction("Index", "Home");
+        }
     }
 }
