@@ -13,5 +13,7 @@ namespace BookSpot.Models
         public Book Book { get; set; }
         [Required]
         public int Quantity { get; set; }
+        [Required]
+        public double UnitPrice { get; set; }
     }
 }

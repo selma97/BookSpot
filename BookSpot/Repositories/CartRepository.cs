@@ -49,11 +49,13 @@ namespace BookSpot.Repositories
                 }
                 else
                 {
+                    var book = _context.Books.Find(bookId);
                     cartDetail = new CartDetail
                     {
                         BookId = bookId,
                         Quantity = qty,
-                        ShoppingCartId = cart.Id
+                        ShoppingCartId = cart.Id,
+                        UnitPrice= book.Price
                     };
                     _context.CartDetails.Add(cartDetail);
                 }
@@ -154,6 +156,56 @@ namespace BookSpot.Repositories
                                   .Where(a => a.UserId == userId).FirstOrDefaultAsync();
             return shoppingCart;
 
+        }
+
+        public async Task<bool> DoCheckout()
+        {
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                var userId = GetUserId();
+                if (string.IsNullOrEmpty(userId))
+                    throw new InvalidOperationException("User is not logged in!");
+                var cart = await GetCart(userId);
+                if(cart==null)
+                {
+                    throw new InvalidOperationException("Invalid cart");
+                }
+                var cartDetails = await _context.CartDetails.Where(cd => cd.ShoppingCartId == cart.Id).ToListAsync();
+                if(cartDetails.Count==0)
+                {
+                  throw new InvalidOperationException("No items in cart");
+                }
+
+                var order= new Order
+                {
+                    UserId = userId,
+                    CreateDate = DateTime.UtcNow,
+                    OrderStatusId=1
+                };
+                _context.Orders.Add(order);
+                _context.SaveChanges();
+                foreach(var item in cartDetails) 
+                {
+                    var orderDetail = new OrderDetail
+                    {
+                        BookId = item.BookId,
+                        Quantity = item.Quantity,
+                        OrderId = order.Id,
+                        UnitPrice =item.UnitPrice
+                    };
+                    _context.OrderDetails.Add(orderDetail);
+                }
+                _context.SaveChanges();
+                _context.CartDetails.RemoveRange(cartDetails);
+                _context.SaveChanges();
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
