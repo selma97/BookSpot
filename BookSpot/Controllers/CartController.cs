@@ -31,7 +31,7 @@ namespace BookSpot.Controllers
         public async Task<IActionResult> GetUserCart()
         {
             var cart = await _cartRepository.GetUserCart();
-            return View();
+            return View(cart);
         }
 
         public async Task<IActionResult> GetTotalItemInCart()
