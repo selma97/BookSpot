@@ -1,5 +1,6 @@
 ﻿using BookSpot.Data;
 using BookSpot.Models;
+using BookSpot.Models.DTO;
 using Microsoft.AspNetCore.Identity;
 
 namespace BookSpot.Repositories
@@ -11,6 +12,6 @@ namespace BookSpot.Repositories
         Task<ShoppingCart> GetUserCart();
         Task<int> GetCartItemCount(string userId = "");
         Task<ShoppingCart> GetCart(string userId);
-        Task<bool> DoCheckout();
+        Task<bool> DoCheckout(CheckoutModel model);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BookSpot.Data;
 using BookSpot.Models;
+using BookSpot.Models.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Configuration;
@@ -158,7 +159,7 @@ namespace BookSpot.Repositories
 
         }
 
-        public async Task<bool> DoCheckout()
+        public async Task<bool> DoCheckout(CheckoutModel model)
         {
             using var transaction = _context.Database.BeginTransaction();
             try
@@ -176,12 +177,23 @@ namespace BookSpot.Repositories
                 {
                   throw new InvalidOperationException("No items in cart");
                 }
+                var pendingRecord = _context.OrderStatuses.FirstOrDefault(os => os.StatusName == "Pending");
+                if(pendingRecord == null)
+                {
+                    throw new InvalidOperationException("Pending order status not found");
+                }
 
                 var order= new Order
                 {
                     UserId = userId,
                     CreateDate = DateTime.UtcNow,
-                    OrderStatusId=1
+                    Name = model.Name,
+                    Email = model.Email,
+                    MobileNumber = model.MobileNumber,
+                    PaymentMethod = model.PaymentMethod,
+                    Address = model.Address,
+                    IsPaid = false,
+                    OrderStatusId =pendingRecord.Id
                 };
                 _context.Orders.Add(order);
                 _context.SaveChanges();

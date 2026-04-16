@@ -1,4 +1,5 @@
-﻿using BookSpot.Repositories;
+﻿using BookSpot.Models.DTO;
+using BookSpot.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,12 +40,30 @@ namespace BookSpot.Controllers
             int cartItemsCount = await _cartRepository.GetCartItemCount();
             return Ok(cartItemsCount);
         }
-        public async Task<IActionResult> DoCheckout()
+
+        public IActionResult Checkout()
         {
-            bool isCheckedOut = await _cartRepository.DoCheckout();
-            if(!isCheckedOut)
-                throw new InvalidOperationException("Checkout failed on server side");
-            return RedirectToAction("Index", "Home");
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CheckoutModel model)
+        {
+            if(!ModelState.IsValid)
+                return View(model);
+            bool isCheckedOut = await _cartRepository.DoCheckout(model);
+            if (!isCheckedOut)
+                return RedirectToAction(nameof(OrderFailure));
+            return RedirectToAction(nameof(OrderSuccess));
+        }
+
+        public IActionResult OrderSuccess()
+        {
+                       return View();
+        }
+        public IActionResult OrderFailure()
+        {
+            return View();
         }
     }
 }
