@@ -1,0 +1,83 @@
+﻿@model IEnumerable<Order>
+
+@{
+}
+<div class="mt-2">
+    @if (Model != null && Model.Count() > 0)
+    {
+        <a href="/Identity/Account/Manage" class="btn btn-primary mt-2 mb-2">Back</a>
+        <h3>Your orders</h3>
+        <table class="table mt-3">
+            <tr>
+                <th>OrderDate</th>
+                <th>OrderStatus</th>
+            </tr>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.CreateDate.ToString("dd-MM-yyyy")</td>
+                    <td>@order.OrderStatus.StatusName</td>
+                </tr>
+
+                @if (order.OrderDetails != null && order.OrderDetails.Count() > 0)
+                {
+                    <tr>
+                        <td>
+                            <table class="table mt-3">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Book</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Genre</th>
+                                        <th scope="col">Unit Price</th>
+                                        <th scope="col">Total Price</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in order.OrderDetails)
+                                    {
+                                        <tr>
+                                            <td>
+                                                Total:
+                                            </td>
+                                            <td>
+                                            @(order.OrderDetails.Select(item => item.Book.Price * item.Quantity).Sum())
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>@item.Book.BookName</td>
+                                            <td>
+                                                @if (string.IsNullOrEmpty(item.Book.Image))
+                                                {
+                                                    <img src="/images/NoImage.png" style="width:80px;height:100px" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="/images/NoImage.png" style="width:80px;height:100px" />
+                                                }
+                                            </td>
+                                            <td>@item.Book.Genre.GenreName</td>
+                                            <td>@item.Book.Price X @item.Quantity</td>
+                                            <td>@(item.Book.Price* item.Quantity)</td>
+                                            <td>
+                                                <a class="btn btn-info" href="/Cart/AddItem?bookId=@item.BookId&&redirect=1">+</a>
+                                                <a class="btn btn-info" href="/Cart/RemoveItem?bookId=@item.BookId">-</a>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+
+                        </td>
+                    </tr>
+                }
+            }
+        </table>
+    }
+    else
+    {
+        <h3>You have no orders!</h3>
+    }
+</div>
